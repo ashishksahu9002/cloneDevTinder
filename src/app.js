@@ -1,22 +1,23 @@
-const express = require('express')
+const express = require("express");
 
-const app = express()
+const app = express();
 
-app.get("/",(req, res)=> {
-  console.log('HOME handler');
-  res.send("Hello Home")
-})
+app.get("/user", (req, res) => {
+  res.send({ name: "Ashish" });
+});
 
-app.get("/test",(req, res)=> {
-  console.log('HOME test');
-  res.send("Hello from test")
-})
+app.post("/user", (req, res) => {
+  res.send("Data saved to DB");
+});
 
-app.get("/about",(req, res)=> {
-  console.log('HOME about');
-  res.send("Hello from about")
-})
+app.delete("/user", (req, res) => {
+  res.send("Data successfully deleted");
+});
 
-app.listen(7777,()=> {
-  console.log('server is running on port 7777')
-})
+app.use("/test", (req, res) => {
+  res.send("Hello from test");
+});
+
+app.listen(7777, () => {
+  console.log("server is running on port 7777");
+});
