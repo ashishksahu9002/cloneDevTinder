@@ -67,15 +67,17 @@ app.delete("/user", async (req, res) => {
 // Api to update user
 app.patch("/user", async (req, res) => {
   const { userID, ...data } = req.body;
-  console.log(userID)
+  console.log(userID);
   try {
-    const user = await User.findByIdAndUpdate({ _id: userID }, data);
+    const user = await User.findByIdAndUpdate({ _id: userID }, data, {
+      returnDocument: "after",
+      runValidators: true,
+    });
     if (!user) return res.status(404).send("User not found");
     console.log(user);
     res.send("User updated successfully");
   } catch (error) {
-    console.error(error);
-    res.status(400).send("Something went wrong");
+    res.status(400).send("UPDATE FAILED : " + error.message);
   }
 });
 
