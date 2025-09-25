@@ -11,11 +11,33 @@ app.post("/signup", async (req, res) => {
   // Creating a new instance of the User (basically using the userSchema to make a User Class)
 
   const user = new User(req.body);
+  console.log(user);
   try {
+    const ALLOWED_SIGNUP = [
+      "firstName",
+      "lastName",
+      "userName",
+      "emailID",
+      "password",
+    ];
+    const isSignupAllowed = Object.keys(req.body).every((key) =>
+      ALLOWED_SIGNUP.includes(key)
+    );
+    if (!isSignupAllowed) {
+      throw new Error("SignUp not allowed");
+    }
     await user.save();
-    res.send("User added to DB");
+    res.status(201).json({
+      message: "User created successfully",
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        emailID: user.emailID,
+        userName: user.userName,
+      },
+    });
   } catch (err) {
-    res.status(400).send("Error saving user data" + err.message);
+    res.status(400).send("Error saving user data : " + err.message);
   }
 });
 
@@ -65,12 +87,24 @@ app.delete("/user", async (req, res) => {
 });
 
 // Api to update user
-app.patch("/user", async (req, res) => {
-  const { userID, ...data } = req.body;
+app.patch("/user/:userID", async (req, res) => {
+  const userID = req.params?.userID;
+  const data = req.body;
   console.log(userID);
   try {
+    const ALLOWED_UPDATES = ["userName", "gender", "about", "skills", "age"];
+    const isUpdateAllowed = Object.keys(data).every((key) =>
+      ALLOWED_UPDATES.includes(key)
+    );
+    if (!isUpdateAllowed) {
+      throw new Error("Update not allowed");
+    }
+    console.log(data?.skills);
+    if (data?.skills?.length > 10) {
+      throw new Error("Skills cannot be more than 10");
+    }
     const user = await User.findByIdAndUpdate({ _id: userID }, data, {
-      returnDocument: "after",
+      returnDocument: "before",
       runValidators: true,
     });
     if (!user) return res.status(404).send("User not found");
@@ -89,5 +123,5 @@ connectDB()
     });
   })
   .catch((err) => {
-    console.log("Database not connected");
+    console.log("Database not connected : ", err);
   });
