@@ -18,7 +18,6 @@ app.post("/signup", async (req, res) => {
 
     // Encrypt the password
     const passwordHash = await bcrypt.hash(password, 10); // bcrypt.hash gives a promise
-    console.log('passwordHash : ', passwordHash)
 
     // Creating a new instance of the User (basically using the userSchema to make a User Class)
     const user = new User({
@@ -38,6 +37,27 @@ app.post("/signup", async (req, res) => {
         userName: user.userName,
       },
     });
+  } catch (err) {
+    res.status(400).send("ERROR : " + err.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailID, password } = req.body;
+    // if (!validator.isEmail(emailID)) {
+    //   throw new Error("Invalid Credentials");
+    // }
+    const user = await User.findOne({ emailID: emailID });
+    if (!user) {
+      throw new Error("Invalid Credentials");
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (isPasswordValid) {
+      res.send("Login Successfully");
+    } else {
+      throw new Error("Invalid Credentials");
+    }
   } catch (err) {
     res.status(400).send("ERROR : " + err.message);
   }
