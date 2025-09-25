@@ -2,30 +2,32 @@ const express = require("express");
 const { adminAuth, userAuth } = require("./middleware/auth");
 const connectDB = require("./config/database");
 const User = require("./models/user");
+const { validateSignUp } = require("./utils/validator");
+const bcrypt = require("bcrypt");
 
 const app = express();
 
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-  // Creating a new instance of the User (basically using the userSchema to make a User Class)
-
-  const user = new User(req.body);
-  console.log(user);
   try {
-    const ALLOWED_SIGNUP = [
-      "firstName",
-      "lastName",
-      "userName",
-      "emailID",
-      "password",
-    ];
-    const isSignupAllowed = Object.keys(req.body).every((key) =>
-      ALLOWED_SIGNUP.includes(key)
-    );
-    if (!isSignupAllowed) {
-      throw new Error("SignUp not allowed");
-    }
+    // Validation of Data
+    validateSignUp(req);
+
+    const { firstName, lastName, userName, emailID, password } = req.body;
+
+    // Encrypt the password
+    const passwordHash = await bcrypt.hash(password, 10); // bcrypt.hash gives a promise
+    console.log('passwordHash : ', passwordHash)
+
+    // Creating a new instance of the User (basically using the userSchema to make a User Class)
+    const user = new User({
+      firstName,
+      lastName,
+      userName,
+      emailID,
+      password: passwordHash,
+    });
     await user.save();
     res.status(201).json({
       message: "User created successfully",
@@ -37,7 +39,7 @@ app.post("/signup", async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(400).send("Error saving user data : " + err.message);
+    res.status(400).send("ERROR : " + err.message);
   }
 });
 
@@ -90,7 +92,6 @@ app.delete("/user", async (req, res) => {
 app.patch("/user/:userID", async (req, res) => {
   const userID = req.params?.userID;
   const data = req.body;
-  console.log(userID);
   try {
     const ALLOWED_UPDATES = ["userName", "gender", "about", "skills", "age"];
     const isUpdateAllowed = Object.keys(data).every((key) =>
@@ -99,7 +100,6 @@ app.patch("/user/:userID", async (req, res) => {
     if (!isUpdateAllowed) {
       throw new Error("Update not allowed");
     }
-    console.log(data?.skills);
     if (data?.skills?.length > 10) {
       throw new Error("Skills cannot be more than 10");
     }
@@ -108,7 +108,6 @@ app.patch("/user/:userID", async (req, res) => {
       runValidators: true,
     });
     if (!user) return res.status(404).send("User not found");
-    console.log(user);
     res.send("User updated successfully");
   } catch (error) {
     res.status(400).send("UPDATE FAILED : " + error.message);

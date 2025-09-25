@@ -34,9 +34,6 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      minLength: 8,
-      maxLength: 50,
-      match: /^[a-zA-Z0-9 !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]+$/,
     },
     age: {
       type: Number,
