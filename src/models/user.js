@@ -8,10 +8,12 @@ const userSchema = new mongoose.Schema(
     firstName: {
       type: String,
       required: true,
+      minLength: 4,
     },
     lastName: {
       type: String,
       required: true,
+      minLength: 4,
     },
     userName: {
       type: String,
@@ -65,7 +67,7 @@ const userSchema = new mongoose.Schema(
 userSchema.methods.getJWT = async function () {
   const user = this;
   const token = await jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "60s",
+    expiresIn: "10s",
   });
   return token;
 };
