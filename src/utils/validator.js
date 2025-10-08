@@ -11,4 +11,37 @@ const validateSignUp = (req) => {
   }
 };
 
-module.exports = { validateSignUp };
+const validateEditFields = (req) => {
+  const isAllowedFields = [
+    "firstName",
+    "lastName",
+    "userName",
+    "age",
+    "gender",
+    "about",
+    "skills",
+  ];
+  const isAllowedFlag = Object.keys(req.body).every((field) =>
+    isAllowedFields.includes(field)
+  );
+  return isAllowedFlag;
+};
+
+const validatePassword = (password) => {
+  return validator.isStrongPassword(password);
+};
+
+const validatePasswordFields = (req) => {
+  const isAllowedPasswordFields = ["currentPassword", "newPassword"];
+  const isAllowed = Object.keys(req.body).every((field) =>
+    isAllowedPasswordFields.includes(field)
+  );
+  return isAllowed;
+};
+
+module.exports = {
+  validateSignUp,
+  validateEditFields,
+  validatePasswordFields,
+  validatePassword,
+};
