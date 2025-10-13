@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       match: /^[a-zA-Z][a-zA-Z0-9]*$/,
     },
-    emailID: {
+    emailId: {
       type: String,
       required: true,
       unique: true,
