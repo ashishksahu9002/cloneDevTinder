@@ -1,16 +1,23 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const cookieParser = require("cookie-parser");
-const cors = require('cors')
+const cors = require("cors");
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "http://localhost:5173/",
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: "http://localhost:5173",
+  credentials: true,
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: ["Content-Type", "Authorization"],
+  maxAge: 86400,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
+
+app.options("*", cors(corsOptions));
+
 app.use(express.json());
 app.use(cookieParser());
 
